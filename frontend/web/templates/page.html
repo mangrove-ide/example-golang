@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CRM</title>
+        <link rel="stylesheet" href="/static/app.css" />
+    </head>
+    <body>
+        <main class="app">
+            <header>
+                <h1>Customers</h1>
+                <p class="subtitle">{{len .Customers}} total</p>
+            </header>
+            <form class="customer-form" method="post" action="/customers">
+                <input name="firstName" placeholder="First name" aria-label="First name" value="{{.Form.FirstName}}" required />
+                <input name="lastName" placeholder="Last name" aria-label="Last name" value="{{.Form.LastName}}" required />
+                <input name="email" type="email" placeholder="Email" aria-label="Email" value="{{.Form.Email}}" required />
+                <button type="submit" data-busy-label="Adding…">Add customer</button>
+                {{- if .FormErrorMessage}}
+                <p class="error form-error" role="alert">{{.FormErrorMessage}}</p>
+                {{- end}}
+            </form>
+            {{- if .ErrorMessage}}
+            <p class="error" role="alert">{{.ErrorMessage}}</p>
+            {{- end}}
+            {{- if .Customers}}
+            <table class="customer-table">
+                <thead>
+                    <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Email</th>
+                        <th aria-label="Actions"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{- range .Customers}}
+                    <tr>
+                        <td>{{.FirstName}}</td>
+                        <td>{{.LastName}}</td>
+                        <td><a href="mailto:{{.Email}}">{{.Email}}</a></td>
+                        <td class="actions">
+                            <form method="post" action="/customers/{{.ID}}/delete" data-confirm="Remove {{.FirstName}} {{.LastName}}?">
+                                <button type="submit" class="danger" aria-label="Remove {{.FirstName}} {{.LastName}}">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{- end}}
+                </tbody>
+            </table>
+            {{- else}}
+            <p class="muted">No customers yet. Add one above.</p>
+            {{- end}}
+        </main>
+        <script>
+            // Mirrors the React app's client-side touches: confirm before removing, and the "Adding…" state while the form submits.
+            document.addEventListener("submit", event => {
+                const message = event.target.dataset.confirm;
+                if (message && !window.confirm(message)) {
+                    event.preventDefault();
+                    return;
+                }
+                const submitButton = event.target.querySelector("button[data-busy-label]");
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = submitButton.dataset.busyLabel;
+                }
+            });
+        </script>
+    </body>
+</html>

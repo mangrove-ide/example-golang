@@ -1,0 +1,6 @@
+*.sqlite
+*.sqlite-journal
+backend/data/
+/backend/api
+/backend/seed
+/frontend/web-server
